@@ -55,9 +55,12 @@ public class EtlService {
 
             // Insert data into another table
             jdbcTemplate.update(
-                    "INSERT INTO another_table (from_email, content, attachment_name, attachment_path, timestamp, process_timestamp, outputfile_name, outputfile_path, created_timestamp, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO another_table (from_email, content, attachment_name, attachment_path, timestamp, process_timestamp, outputfile_name, outputfile_path, created_timestamp, created_by) " +
+                            "SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
+                            "WHERE NOT EXISTS (SELECT 1 FROM another_table WHERE id = ?)",
                     emailLog.getFromEmail(), emailLog.getContent(), emailLog.getAttachmentName(), emailLog.getAttachmentPath(),
-                    timestamp, processTimestamp, emailLog.getOutputfileName(), emailLog.getOutputfilePath(), createdTimestamp, emailLog.getCreatedBy()
+                    timestamp, processTimestamp, emailLog.getOutputfileName(), emailLog.getOutputfilePath(), createdTimestamp, emailLog.getCreatedBy(),
+                    emailLog.getId() // Assuming emailLog.getId() returns the ID to check for existence
             );
         }
     }
